@@ -3,7 +3,8 @@
 # wp-sandbox.sh - a permanent WordPress test install for Claude Code on a Linux box.
 #
 # One install at $WP_SANDBOX_HOME/wp: WordPress nightly, the latest WooCommerce beta or RC (stable
-# when no pre-release is newer), Storefront, sample products, WP_DEBUG and WP_DEBUG_LOG on. Every
+# when no pre-release is newer), Storefront (classic theme, active) and Purple (block theme, there
+# to switch to), sample products, WP_DEBUG and WP_DEBUG_LOG on. Every
 # plugin a task touches is added and then stays installed but inactive, at its latest stable
 # version, so the install gets richer over time without every plugin loading in every test. Nothing in it matters: it is disposable, but it is kept rather than rebuilt.
 #
@@ -326,6 +327,7 @@ case "$cmd" in
     update_core
     if [ "$WOO" = 1 ]; then
       wpc theme install storefront --activate
+      wpc theme install purple
       update_wc
       set_source woocommerce wporg woocommerce
       wpc option update woocommerce_default_country "$WP_SANDBOX_COUNTRY"
