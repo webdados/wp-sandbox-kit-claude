@@ -4,18 +4,19 @@
 #
 # One install at $WP_SANDBOX_HOME/wp: WordPress nightly, the latest WooCommerce beta or RC (stable
 # when no pre-release is newer), Storefront, sample products, WP_DEBUG and WP_DEBUG_LOG on. Every
-# plugin a task touches is added and then stays, at its latest stable version, so the install gets
-# richer over time. Nothing in it matters: it is disposable, but it is kept rather than rebuilt.
+# plugin a task touches is added and then stays installed but inactive, at its latest stable
+# version, so the install gets richer over time without every plugin loading in every test. Nothing in it matters: it is disposable, but it is kept rather than rebuilt.
 #
 # Usage:
 #   wp-sandbox.sh work <path> [--as <folder>] [--source <src>] [--force]
 #                                   put a working copy of a plugin over the installed one, activate
 #                                   it, load WordPress and report new PHP notices, warnings, fatals
 #   wp-sandbox.sh add <src> [--as <folder>]
-#                                   install a plugin at its stable version and keep it (to test
-#                                   against it, or to have it there for the future)
+#                                   install a plugin at its stable version, activate it for the
+#                                   test, and keep it (finish with restore, which deactivates it)
 #   wp-sandbox.sh check             load cron, front-end and wp-admin pages again, report new log lines
-#   wp-sandbox.sh restore <folder>  put back the stable version recorded for that plugin
+#   wp-sandbox.sh restore <folder>  put back the stable version recorded for that plugin and
+#                                   deactivate it (unless it is in WP_SANDBOX_KEEP_ACTIVE)
 #   wp-sandbox.sh sources           where each kept plugin's stable version comes from
 #   wp-sandbox.sh status            versions, working copies, last daily run
 #   wp-sandbox.sh versions          the "Tested up to WordPress x and WooCommerce y" line
@@ -25,7 +26,8 @@
 #                                   Exports WP_BASE_URL, PLAYWRIGHT_BASE_URL and BASE_URL (the URL),
 #                                   WP_ADMIN_USER, WP_ADMIN_PASS, WP_PATH, WP_CLI_BIN; unsets CI.
 #   wp-sandbox.sh daily             snapshot, then nightly core, WooCommerce beta, every kept plugin
-#                                   to stable, stale working copies restored (systemd timer)
+#                                   to stable, stale working copies restored, plugins left active
+#                                   deactivated (systemd timer)
 #   wp-sandbox.sh rollback          restore the newest snapshot (after a nightly breaks the install)
 #   wp-sandbox.sh setup             first install (once; refuses if one exists)
 #
@@ -40,7 +42,9 @@
 #
 # A working copy is marked in state/work/<folder> with the path it came from. Another path for the
 # same folder is refused without --force, so two sessions do not overwrite each other. Always finish
-# with restore. The daily run restores working copies older than WP_SANDBOX_STALE_MINUTES.
+# with restore, for working copies and for plugins added or activated for the test. Only the plugins
+# in WP_SANDBOX_KEEP_ACTIVE stay active between tests. The daily run restores working copies older
+# than WP_SANDBOX_STALE_MINUTES and deactivates anything else left active.
 #
 # Settings: defaults below, overridden in ~/.config/wp-sandbox.conf (a shell file of VAR=value).
 
@@ -61,6 +65,7 @@ WP_SANDBOX_COUNTRY=US
 WP_SANDBOX_CURRENCY=USD
 WP_SANDBOX_KEEP_SNAPSHOTS=5
 WP_SANDBOX_STALE_MINUTES=1200
+WP_SANDBOX_KEEP_ACTIVE="woocommerce"
 # shellcheck disable=SC1090
 [ -f "$HOME/.config/wp-sandbox.conf" ] && . "$HOME/.config/wp-sandbox.conf"
 
@@ -230,10 +235,16 @@ install_stable() {
   esac
 }
 
+keep_active() { [[ " $WP_SANDBOX_KEEP_ACTIVE " == *" $1 "* ]]; }
+
 restore() {
   local folder="$1"
-  install_stable "$folder" || { echo "$folder: the working copy stays." >&2; return 1; }
+  install_stable "$folder" || { echo "$folder: left as it is." >&2; return 1; }
   rm -f "$STATE/work/$folder"
+  if ! keep_active "$folder"; then
+    wpc plugin deactivate "$folder" 2>/dev/null || true
+    echo "$folder: inactive."
+  fi
 }
 
 wc_latest() {
@@ -488,6 +499,12 @@ case "$cmd" in
     wpc theme update --all || true
     wpc language core update || true
     wpc language plugin update --all || true
+    for p in $(wpo plugin list --status=active --field=name 2>/dev/null); do
+      if ! keep_active "$p" && [ ! -f "$STATE/work/$p" ]; then
+        wpc plugin deactivate "$p" || true
+        echo "$p: was left active, deactivated."
+      fi
+    done
     exercise
     result=ok
     report_log_since "$start" || result=FATAL

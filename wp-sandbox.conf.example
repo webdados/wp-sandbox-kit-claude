@@ -9,3 +9,4 @@
 #WP_SANDBOX_CURRENCY=USD
 #WP_SANDBOX_KEEP_SNAPSHOTS=5
 #WP_SANDBOX_STALE_MINUTES=1200      # the daily run restores working copies older than this
+#WP_SANDBOX_KEEP_ACTIVE="woocommerce"   # space separated; every other plugin is inactive between tests

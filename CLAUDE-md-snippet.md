@@ -23,11 +23,14 @@ works, run it there:
 
 - `wp-sandbox.sh work <plugin folder>` puts the working copy in, activates it, loads the front end
   and wp-admin and reports new PHP errors. Run it again after each edit. Always finish with
-  `wp-sandbox.sh restore <folder>`, even when the task is abandoned.
+  `wp-sandbox.sh restore <folder>`, even when the task is abandoned: it puts the stable version back
+  and deactivates it.
+- Plugins stay installed but inactive between tests; only WooCommerce stays active. Activate what a
+  test needs (`wp-sandbox.sh wp plugin activate <folder>`) and `restore` each one at the end.
 - Check the stable source `work` guesses the first time for a plugin; fix it with `--source`.
 - When a test needs another plugin (a gateway, a multilingual plugin), add it with
-  `wp-sandbox.sh add <slug | github:owner/repo | zip:path>`. It stays, so the install grows into a
-  realistic shop over time. Never remove plugins from it.
+  `wp-sandbox.sh add <slug | github:owner/repo | zip:path>`. It stays installed, so the install
+  grows into a realistic shop over time. Never delete plugins from it; deactivate them.
 - Test suites run against it: PHPUnit, PHPCS and PHPStan as usual, and Playwright headless through
   `wp-sandbox.sh run npx playwright test`, which sets the URL and admin login. Only tests that need a
   screen stay on a desktop machine.
@@ -43,5 +46,6 @@ works, run it there:
 
 - **The script and the section move together.** When a command is added or changed, update the header (the manual) and, if sessions need to know, this section.
 - **The environment updates itself** through the daily timer. Nobody should update core, WooCommerce or plugins by hand, or a working copy might be overwritten.
-- **Richer over time** only works if sessions follow two rules: always `restore` (so the plugin goes back to stable and stays installed, rather than being deleted), and `add` rather than a raw `wp plugin install` (so the plugin gets a recorded source and the daily run keeps it current).
-- **Once a week or so**, glance at `wp-sandbox.sh status`: the last daily line, any working copy left over, plugins that are inactive because activation failed.
+- **Richer over time** only works if sessions follow two rules: always `restore` (so the plugin goes back to stable, inactive, and stays installed rather than being deleted), and `add` rather than a raw `wp plugin install` (so the plugin gets a recorded source and the daily run keeps it current).
+- **Inactive by default** keeps every test on the same baseline: only `WP_SANDBOX_KEEP_ACTIVE` (WooCommerce) stays on. The daily run deactivates anything a session forgot.
+- **Once a week or so**, glance at `wp-sandbox.sh status`: the last daily line, any working copy left over, and any plugin besides WooCommerce still active.
