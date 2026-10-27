@@ -1,0 +1,11 @@
+# ~/.config/wp-sandbox.conf: overrides for wp-sandbox.sh. Every line is optional.
+#WP_SANDBOX_HOME="$HOME/wp-sandbox"
+#WP_SANDBOX_PORT=8899
+#WP_SANDBOX_DB=wpsandbox
+#WP_SANDBOX_DB_USER="$(id -un)"
+#WP_SANDBOX_DB_SOCKET=/run/mysqld/mysqld.sock
+#WP_SANDBOX_WOOCOMMERCE=1           # 0: plain WordPress, no WooCommerce, Storefront or sample products
+#WP_SANDBOX_COUNTRY=US
+#WP_SANDBOX_CURRENCY=USD
+#WP_SANDBOX_KEEP_SNAPSHOTS=5
+#WP_SANDBOX_STALE_MINUTES=1200      # the daily run restores working copies older than this

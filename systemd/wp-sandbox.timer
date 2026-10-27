@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily WP sandbox update
+
+[Timer]
+OnCalendar=*-*-* 05:30
+RandomizedDelaySec=15m
+Persistent=true
+
+[Install]
+WantedBy=timers.target
