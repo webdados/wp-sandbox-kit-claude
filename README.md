@@ -21,7 +21,7 @@ It was built by and for a WordPress and WooCommerce plugin developer, which is w
 
 - **One install, kept forever.** `~/wp-sandbox/wp`, never rebuilt. It is disposable (nothing in it matters, there is a daily snapshot), but keeping it is what lets it accumulate.
 - **Always ahead.** WordPress nightly and the latest WooCommerce beta or RC (stable when no pre-release is newer), so breakage from upcoming releases shows up before customers see it. WooCommerce's sample products, so the shop pages have something to render.
-- **Two themes, one of each kind.** Storefront, a classic PHP theme, is the active one. Purple, a WooCommerce block theme, is installed next to it, so a test can check a plugin on block templates (block cart and checkout, the site editor) with `wp-sandbox.sh wp theme activate purple`. Switch back to Storefront at the end, like plugins go back to inactive.
+- **Two themes, one of each kind.** Purple, a WooCommerce block theme, is the active one, since block themes are where WordPress and WooCommerce are heading (block cart and checkout, the site editor). Storefront, a classic PHP theme, is installed next to it for tests that need classic templates: `wp-sandbox.sh wp theme activate storefront`, then back to Purple at the end, like plugins go back to inactive. The daily run switches back if a session forgot.
 - **Gets richer over time.** Every plugin a task touches is added and then **stays installed, inactive, at its latest stable version**. After a few months the install has the whole plugin portfolio available side by side, plus whatever third-party plugins were added for compatibility tests, so a test can switch on exactly the combination it needs (a gateway, a multilingual plugin, another of your plugins) without installing anything. Inactive does not mean idle: their source is there to read, so Claude can check how a change interacts with them (shared hooks, filters, the same WooCommerce settings) before deciding which ones to activate for a test.
 - **Inactive between tests.** Only the plugins in `WP_SANDBOX_KEEP_ACTIVE` (WooCommerce by default) stay active. Everything else is activated for a test and deactivated at the end, so one plugin's bug never shows up in another plugin's test, and every test starts from the same baseline. `restore` deactivates; the daily run catches anything a session left active.
 - **Loud about errors.** `WP_DEBUG`, `WP_DEBUG_LOG` and `SCRIPT_DEBUG` on, display off. Every command that loads WordPress reports only the `debug.log` lines that are new since it started, and flags fatals.
@@ -81,7 +81,7 @@ A working copy is marked in `state/work/<folder>` with the source path and the t
 5. Every other WordPress.org plugin updated. Plugins kept from GitHub or a zip, and working copies, are excluded so a same-named WordPress.org plugin never replaces them.
 6. Every GitHub-sourced plugin reinstalled from its latest release.
 7. Themes (Storefront, Purple and any other) and translations updated.
-8. Any plugin left active that is not a working copy or in `WP_SANDBOX_KEEP_ACTIVE` is deactivated.
+8. Any plugin left active that is not a working copy or in `WP_SANDBOX_KEEP_ACTIVE` is deactivated, and the theme goes back to `WP_SANDBOX_THEME` (Purple).
 9. Pages loaded, new log lines checked, one line appended to `state/daily.log` (`ok` or `FATAL`).
 
 If a nightly breaks the install: `wp-sandbox.sh rollback` restores the newest snapshot. Working-copy markers are left alone.

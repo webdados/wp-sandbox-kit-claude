@@ -3,8 +3,8 @@
 # wp-sandbox.sh - a permanent WordPress test install for Claude Code on a Linux box.
 #
 # One install at $WP_SANDBOX_HOME/wp: WordPress nightly, the latest WooCommerce beta or RC (stable
-# when no pre-release is newer), Storefront (classic theme, active) and Purple (block theme, there
-# to switch to), sample products, WP_DEBUG and WP_DEBUG_LOG on. Every
+# when no pre-release is newer), Purple (block theme, active) and Storefront (classic theme, for
+# classic tests), sample products, WP_DEBUG and WP_DEBUG_LOG on. Every
 # plugin a task touches is added and then stays installed but inactive, at its latest stable
 # version, so the install gets richer over time without every plugin loading in every test. Nothing in it matters: it is disposable, but it is kept rather than rebuilt.
 #
@@ -45,7 +45,8 @@
 # same folder is refused without --force, so two sessions do not overwrite each other. Always finish
 # with restore, for working copies and for plugins added or activated for the test. Only the plugins
 # in WP_SANDBOX_KEEP_ACTIVE stay active between tests. The daily run restores working copies older
-# than WP_SANDBOX_STALE_MINUTES and deactivates anything else left active.
+# than WP_SANDBOX_STALE_MINUTES, deactivates anything else left active and switches back to
+# WP_SANDBOX_THEME.
 #
 # Settings: defaults below, overridden in ~/.config/wp-sandbox.conf (a shell file of VAR=value).
 
@@ -67,6 +68,7 @@ WP_SANDBOX_CURRENCY=USD
 WP_SANDBOX_KEEP_SNAPSHOTS=5
 WP_SANDBOX_STALE_MINUTES=1200
 WP_SANDBOX_KEEP_ACTIVE="woocommerce"
+WP_SANDBOX_THEME=purple
 # shellcheck disable=SC1090
 [ -f "$HOME/.config/wp-sandbox.conf" ] && . "$HOME/.config/wp-sandbox.conf"
 
@@ -326,8 +328,9 @@ case "$cmd" in
     wpc rewrite structure '/%postname%/'
     update_core
     if [ "$WOO" = 1 ]; then
-      wpc theme install storefront --activate
+      wpc theme install storefront
       wpc theme install purple
+      wpc theme activate "$WP_SANDBOX_THEME"
       update_wc
       set_source woocommerce wporg woocommerce
       wpc option update woocommerce_default_country "$WP_SANDBOX_COUNTRY"
@@ -507,6 +510,10 @@ case "$cmd" in
         echo "$p: was left active, deactivated."
       fi
     done
+    if [ "$WOO" = 1 ] && ! wpc theme is-active "$WP_SANDBOX_THEME"; then
+      wpc theme activate "$WP_SANDBOX_THEME" || true
+      echo "Theme was left switched, back to $WP_SANDBOX_THEME."
+    fi
     exercise
     result=ok
     report_log_since "$start" || result=FATAL

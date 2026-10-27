@@ -17,7 +17,7 @@ Adjust the plugin wording to whose plugins they are; drop the WooCommerce mentio
 
 This machine (only this one) has a permanent WordPress test install, run through
 `~/.local/bin/wp-sandbox.sh` (its header has every command): WordPress nightly, the latest
-WooCommerce beta, sample products, two themes (Storefront, classic, active; Purple, block, installed),
+WooCommerce beta, sample products, two themes (Purple, block, active; Storefront, classic, installed),
 `WP_DEBUG_LOG` on, served only on `http://127.0.0.1:8899` and
 only while a check or suite runs (never start `wp server` yourself). Before saying a plugin change
 works, run it there:
@@ -28,8 +28,8 @@ works, run it there:
   and deactivates it.
 - Plugins stay installed but inactive between tests; only WooCommerce stays active. Activate what a
   test needs (`wp-sandbox.sh wp plugin activate <folder>`) and `restore` each one at the end.
-- For a block theme test, `wp-sandbox.sh wp theme activate purple`; switch back to `storefront` at
-  the end.
+- For a classic theme test, `wp-sandbox.sh wp theme activate storefront`; switch back to `purple`
+  at the end.
 - Check the stable source `work` guesses the first time for a plugin; fix it with `--source`.
 - When a test needs another plugin (a gateway, a multilingual plugin), add it with
   `wp-sandbox.sh add <slug | github:owner/repo | zip:path>`. It stays installed, so the install

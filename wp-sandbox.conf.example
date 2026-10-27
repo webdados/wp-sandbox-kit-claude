@@ -4,9 +4,10 @@
 #WP_SANDBOX_DB=wpsandbox
 #WP_SANDBOX_DB_USER="$(id -un)"
 #WP_SANDBOX_DB_SOCKET=/run/mysqld/mysqld.sock
-#WP_SANDBOX_WOOCOMMERCE=1           # 0: plain WordPress, no WooCommerce, Storefront or sample products
+#WP_SANDBOX_WOOCOMMERCE=1           # 0: plain WordPress, no WooCommerce, shop themes or sample products
 #WP_SANDBOX_COUNTRY=US
 #WP_SANDBOX_CURRENCY=USD
 #WP_SANDBOX_KEEP_SNAPSHOTS=5
 #WP_SANDBOX_STALE_MINUTES=1200      # the daily run restores working copies older than this
 #WP_SANDBOX_KEEP_ACTIVE="woocommerce"   # space separated; every other plugin is inactive between tests
+#WP_SANDBOX_THEME=purple            # the active theme between tests (storefront for classic)

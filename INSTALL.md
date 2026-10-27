@@ -71,7 +71,7 @@ cp wp-sandbox.conf.example ~/.config/wp-sandbox.conf   # optional: edit country,
 wp-sandbox.sh setup                                    # 3 to 5 minutes; prints the page checks at the end
 ```
 
-`setup` downloads WordPress, upgrades it to the nightly, installs Storefront (active) and Purple, the latest WooCommerce pre-release and its sample products, and writes the admin login to `~/wp-sandbox/admin.env` (0600). The warnings about `exif_read_data` while importing sample images are harmless.
+`setup` downloads WordPress, upgrades it to the nightly, installs Purple (active) and Storefront, the latest WooCommerce pre-release and its sample products, and writes the admin login to `~/wp-sandbox/admin.env` (0600). The warnings about `exif_read_data` while importing sample images are harmless.
 
 ## 4. The daily update (user)
 
