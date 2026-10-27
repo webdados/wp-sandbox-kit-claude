@@ -1,4 +1,4 @@
-# WP sandbox kit
+# WP sandbox kit for Claude Code
 
 A permanent WordPress test install for Claude Code on a remote Linux box (a "ClaudeBox": a small server that runs Claude Code sessions, often reached through Remote Control from the Claude app). It lets Claude test a plugin change against a real WordPress and WooCommerce before saying it works.
 
